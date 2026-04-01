@@ -2,7 +2,7 @@ name: Scheduled Dividend Watchlist
 
 on:
   schedule:
-    - cron: '0 10,13 * * *'
+    - cron: '49 09,12 * * 1-5'
   workflow_dispatch: 
 
 env:
