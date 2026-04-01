@@ -1,0 +1,48 @@
+name: Scheduled Dividend Watchlist
+
+on:
+  schedule:
+    - cron: '0 10,13 * * *'
+  workflow_dispatch: 
+
+env:
+  FORCE_JAVASCRIPT_ACTIONS_TO_NODE24: true
+
+jobs:
+  run-and-deploy:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.10'
+          # Removed the cache line to fix the "No file matched" error
+
+      - name: Install Dependencies
+        run: |
+          pip install pandas nbconvert ipykernel jinja2 yfinance
+
+      - name: Execute Notebook
+        run: |
+          # We execute from the root but point to the subfolder path
+          jupyter nbconvert --to notebook --execute dividends/Dividend_watchlist.ipynb --inplace --ExecutePreprocessor.kernel_name=python3
+
+      - name: Commit and Push Report
+        run: |
+          git config --local user.email "github-actions[bot]@users.noreply.github.com"
+          git config --local user.name "github-actions[bot]"
+          
+          # Force add the files to ensure git sees the changes
+          git add dividends/Dividend_watchlist.ipynb
+          
+          # Check if html is in root or subfolder and add it
+          git add stock_report.html || git add dividends/stock_report.html || echo "HTML not found"
+          
+          git commit -m "Automated Dividend Update: $(date)" || echo "No changes to commit"
+          git push
