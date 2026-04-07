@@ -26,7 +26,7 @@ jobs:
 
       - name: Install Dependencies
         run: |
-          pip install pandas nbconvert ipykernel jinja2 yfinance
+          pip install pandas nbconvert ipykernel jinja2 yfinance pytz
 
       - name: Execute Notebook
         run: |
